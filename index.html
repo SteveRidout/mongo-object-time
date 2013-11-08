@@ -1,0 +1,189 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>MongoDB ObjectId to Timestamp Converter</title>
+
+		<meta name="description" content="Handy converter of MongoDB ObjectIds to timestamps and vice versa."/>
+
+		<style>
+			body {
+				font-family: Arial, Helvetica, sans-serif;
+
+				width: 760px;
+
+				margin: 0 auto;
+			}
+			.row {
+				clear: both;
+				
+			}
+			.block {
+				display: inline-block;
+
+				vertical-align: top;
+				width: 320px;
+				
+				padding: 15px;
+				margin: 10px;
+
+				background-color: #eea;
+			}
+			.block h2 {
+				margin-top: 0;
+			}
+			#objectId {
+				width: 300px;
+			}
+			#objectIdForPasting {
+				width: 300px;
+			}
+			.invalid {
+				border-color: red;
+			}
+		</style>
+
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script>
+			"use strict";
+
+			$(document).ready(function () {
+				var objectIdFromDate = function (date) {
+					return Math.floor(date.getTime() / 1000).toString(16) + "0000000000000000";
+				};
+
+				var dateFromObjectId = function (objectId) {
+					return new Date(parseInt(objectId.substring(0, 8), 16) * 1000);
+				};
+
+				var yearInput = $('#year'),
+					monthInput = $('#month'),
+					dayInput = $('#date'),
+					hoursInput = $('#hours'),
+					minutesInput = $('#minutes'),
+					secondsInput = $('#seconds'),
+					timeSecondsInput = $('#timeSeconds'),
+					objectIdInput = $('#objectId'),
+					objectIdForPasting = $('#objectIdForPasting');
+
+				objectIdForPasting.click(function () {
+					console.log("click");
+					objectIdForPasting.focus().select();
+				});
+
+				var updatedTime = function () {
+					var year = parseInt(yearInput.val(), 10),
+						month = parseInt(monthInput.val(), 10),
+						day = parseInt(dayInput.val(), 10),
+						hours = parseInt(hoursInput.val(), 10),
+						minutes = parseInt(minutesInput.val(), 10),
+						seconds = parseInt(secondsInput.val(), 10);
+
+					var date = new Date(year, month - 1, day, hours, minutes, seconds);
+
+					console.log("date = ", date);
+
+					var objectId = objectIdFromDate(date);
+
+					timeSecondsInput.val(Math.floor(date.getTime() / 1000));
+					objectIdInput.val(objectId);
+					objectIdForPasting.val('ObjectId("' + objectId + '")');
+				};
+
+				var updatedObjectId = function () {
+					var objectId = objectIdInput.val();
+
+					if (!/^[0-9a-fA-F]{24}$/.test(objectId)) {
+						objectIdInput.addClass('invalid');
+						return;
+					}
+					objectIdInput.removeClass('invalid');
+
+					objectIdForPasting.val('ObjectId("' + objectId + '")');
+
+					var date = dateFromObjectId(objectIdInput.val());
+
+					yearInput.val(date.getFullYear());
+					monthInput.val(date.getMonth());
+					dayInput.val(date.getDate());
+					hoursInput.val(date.getHours());
+					minutesInput.val(date.getMinutes());
+					secondsInput.val(date.getSeconds());
+
+					timeSecondsInput.val(Math.floor(date.getTime() / 1000));
+				};
+
+				objectIdInput.keyup(updatedObjectId).change(updatedObjectId);
+
+				var currentDate = new Date();
+				yearInput.val(currentDate.getFullYear());
+				monthInput.val(currentDate.getMonth() + 1);
+				dayInput.val(currentDate.getDate());
+
+				$('#year, #month, #date, #hours, #minutes, #seconds').keyup(updatedTime).change(updatedTime);
+
+				updatedTime();
+			});
+		</script>
+	</head>
+
+	<body>
+		<a href="https://github.com/you"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png" alt="Fork me on GitHub"></a>
+
+		<h1>MongoDB ObjectId <-> Timestamp Converter</h1>
+
+		<p>Did you know that each <a href="http://docs.mongodb.org/manual/reference/object-id/">MongoDB ObjectId</a> contains an embedded timestamp of it's creation time?</p>
+
+		<p>From the mongo shell, you can use <strong>getTimestamp()</strong> to retrieve the timestamp from the ObjectId, but there's no built in function to generate an ObjectId from a timestamp.</p>
+
+		<p>This online converter will convert from timestamp to ObjectId and vice versa.</p>
+
+		<div class=row>
+			<div class=block>
+				<h2>ObjectId</h2>
+
+				<input id="objectId" type="text"></input><br/>
+				<small>(NOTE: not unique, only use for comparisons, not for creating new records!)</small>
+				<br/><br/>
+				<input type="text" readonly="readonly" id="objectIdForPasting"></input>
+				<small>(convenient to paste into mongo shell)</small>
+			</div>
+			<div class=block>
+				<h2>Time</h2>
+				<table>
+					<tr>
+						<td>Seconds since epoch</td><td><input id="timeSeconds" type="text"></input></td>
+					</tr>
+					<tr>
+						<td>Year (XXXX)</td><td><input id="year" type="number"></input></td>
+					</tr>
+					<tr>
+						<td>Month (1 - 12)</td><td><input id="month" type="number"></input></td>
+					</tr>
+					<tr>
+						<td>Date (1 - 31)</td><td><input id="date" type="number"></input></td>
+					</tr>
+					<tr>
+						<td>Hours</td><td><input id="hours" type="number" value="0"></input></td>
+					</tr>
+					<tr>
+						<td>Minutes</td><td><input id="minutes" type="number" value="0"></input></td>
+					</tr>
+					<tr>
+						<td>Seconds</td><td><input id="seconds" type="number" value="0"></input></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+
+		<h3>Why generate an objectId from a timestamp?</h3>
+
+		<p>To query documents by creation date.</p>
+		
+		<p>e.g. to find all comments created after 2013-11-01:</p>
+
+		<pre>db.comments.find({_id: {$gt: ObjectId("")}})</pre>
+
+		<p>Created by <a href="http://steveridout.com/about.html">Steve Ridout</a></p>
+	</body>
+</html>
+
