@@ -43,6 +43,9 @@
 			pre {
 				margin-left: 40px;
 			}
+			input {
+				width: 190px;
+			}
 		</style>
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
@@ -64,13 +67,15 @@
 					hoursInput = $('#hours'),
 					minutesInput = $('#minutes'),
 					secondsInput = $('#seconds'),
-					timeSecondsInput = $('#timeSeconds'),
 					objectIdInput = $('#objectId'),
-					objectIdForPasting = $('#objectIdForPasting');
+					objectIdForPasting = $('#objectIdForPasting'),
+					timestamp = $('#timestamp');
 
 				objectIdForPasting.click(function () {
-					console.log("click");
 					objectIdForPasting.focus().select();
+				});
+				timestamp.click(function () {
+					timestamp.focus().select();
 				});
 
 				var updatedTime = function () {
@@ -87,9 +92,10 @@
 
 					var objectId = objectIdFromDate(date);
 
-					timeSecondsInput.val(Math.floor(date.getTime() / 1000));
 					objectIdInput.val(objectId);
 					objectIdForPasting.val('ObjectId("' + objectId + '")');
+					
+					timestamp.val(date.toISOString());
 				};
 
 				var updatedObjectId = function () {
@@ -112,7 +118,7 @@
 					minutesInput.val(date.getMinutes());
 					secondsInput.val(date.getSeconds());
 
-					timeSecondsInput.val(Math.floor(date.getTime() / 1000));
+					timestamp.val(date.toISOString());
 				};
 
 				objectIdInput.keyup(updatedObjectId).change(updatedObjectId);
@@ -154,9 +160,6 @@
 				<h2>Time</h2>
 				<table>
 					<tr>
-						<td>Seconds since epoch</td><td><input id="timeSeconds" type="text"></input></td>
-					</tr>
-					<tr>
 						<td>Year (XXXX)</td><td><input id="year" type="number"></input></td>
 					</tr>
 					<tr>
@@ -173,6 +176,9 @@
 					</tr>
 					<tr>
 						<td>Seconds</td><td><input id="seconds" type="number" value="0"></input></td>
+					</tr>
+					<tr>
+						<td>ISO Timestamp</td><td><input id="timestamp" readonly="readonly" type=text></input></td>
 					</tr>
 				</table>
 			</div>
