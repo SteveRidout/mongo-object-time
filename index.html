@@ -40,6 +40,9 @@
 			.invalid {
 				border-color: red;
 			}
+			pre {
+				margin-left: 40px;
+			}
 		</style>
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
@@ -175,13 +178,24 @@
 			</div>
 		</div>
 
-		<h3>Why generate an objectId from a timestamp?</h3>
+		<h3>Why generate an ObjectId from a timestamp?</h3>
 
 		<p>To query documents by creation date.</p>
 		
 		<p>e.g. to find all comments created after 2013-11-01:</p>
 
-		<pre>db.comments.find({_id: {$gt: ObjectId("")}})</pre>
+		<pre>db.comments.find({_id: {$gt: ObjectId("5272e0f00000000000000000")}})</pre>
+
+		<h3>Javascript functions</h3>
+		<pre>
+var objectIdFromDate = function (date) {
+	return Math.floor(date.getTime() / 1000).toString(16) + "0000000000000000";
+};
+
+var dateFromObjectId = function (objectId) {
+	return new Date(parseInt(objectId.substring(0, 8), 16) * 1000);
+};
+		</pre>
 
 		<p>Created by <a href="http://steveridout.com/about.html">Steve Ridout</a></p>
 	</body>
