@@ -72,7 +72,7 @@
 					timestamp = $('#timestamp'),
 					timezoneOffset = $('#timezoneOffset');
 
-				var timezoneOffsetValue = new Date().getTimezoneOffset() / 60;
+				var timezoneOffsetValue = - new Date().getTimezoneOffset() / 60;
 				if (timezoneOffsetValue < 0) {
 					timezoneOffset.text(timezoneOffsetValue);
 				} else if (timezoneOffsetValue > 0) {
@@ -174,7 +174,7 @@
 				<small>(convenient to paste into mongo shell)</small>
 			</div>
 			<div class=block>
-				<h2>Time <small>(GMT<span id="timezoneOffset"></span>)</small></h2>
+				<h2>Time <small>(UTC<span id="timezoneOffset"></span>)</small></h2>
 				<table>
 					<tr>
 						<td>Year (XXXX)</td><td><input id="year" type="number"></input></td>
