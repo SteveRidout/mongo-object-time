@@ -69,7 +69,15 @@
 					secondsInput = $('#seconds'),
 					objectIdInput = $('#objectId'),
 					objectIdForPasting = $('#objectIdForPasting'),
-					timestamp = $('#timestamp');
+					timestamp = $('#timestamp'),
+					timezoneOffset = $('#timezoneOffset');
+
+				var timezoneOffsetValue = new Date().getTimezoneOffset() / 60;
+				if (timezoneOffsetValue < 0) {
+					timezoneOffset.text(timezoneOffsetValue);
+				} else if (timezoneOffsetValue > 0) {
+					timezoneOffset.text('+' + timezoneOffsetValue);
+				}
 
 				objectIdForPasting.click(function () {
 					objectIdForPasting.focus().select();
@@ -160,13 +168,13 @@
 				<h2>ObjectId</h2>
 
 				<input id="objectId" type="text"></input><br/>
-				<small>(NOTE: not unique, only use for comparisons, not for creating new records!)</small>
+				<small>(NOTE: not unique, only use for comparisons, not for creating new documents!)</small>
 				<br/><br/>
 				<input type="text" readonly="readonly" id="objectIdForPasting"></input>
 				<small>(convenient to paste into mongo shell)</small>
 			</div>
 			<div class=block>
-				<h2>Time</h2>
+				<h2>Time <small>(GMT<span id="timezoneOffset"></span>)</small></h2>
 				<table>
 					<tr>
 						<td>Year (XXXX)</td><td><input id="year" type="number"></input></td>
