@@ -53,8 +53,11 @@
 			"use strict";
 
 			$(document).ready(function () {
+				// see https://jira.mongodb.org/browse/SERVER-14623
 				var objectIdFromDate = function (date) {
-					return Math.floor(date.getTime() / 1000).toString(16) + "0000000000000000";
+					var pad = "00000000";
+					var hexSeconds = Math.floor(date.getTime() / 1000).toString(16)
+					return pad.substring(0, pad.length - hexSeconds.length) + hexSeconds + "0000000000000000";
 				};
 
 				var dateFromObjectId = function (objectId) {
