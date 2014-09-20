@@ -26,7 +26,7 @@
 				padding: 15px;
 				margin: 10px;
 
-				background-color: #eea;
+				background-color: #ACEEAA;
 			}
 			.block h2 {
 				margin-top: 0;
@@ -45,6 +45,8 @@
 			}
 			input {
 				width: 190px;
+				padding: 3px;
+				font-size: 14px;
 			}
 		</style>
 
@@ -52,9 +54,16 @@
 		<script>
 			"use strict";
 
+			var minDate = new Date(0),
+				maxDate = new Date(parseInt("ffffffff", 16) * 1000);
+
 			$(document).ready(function () {
 				// see https://jira.mongodb.org/browse/SERVER-14623
 				var objectIdFromDate = function (date) {
+					if (date < minDate || date > maxDate) {
+						return "Error: date must be between " + minDate.getFullYear() +
+							" and " + maxDate.getFullYear();
+					}
 					var pad = "00000000";
 					var hexSeconds = Math.floor(date.getTime() / 1000).toString(16)
 					return pad.substring(0, pad.length - hexSeconds.length) + hexSeconds + "0000000000000000";
@@ -90,12 +99,12 @@
 				});
 
 				var updatedTime = function () {
-					var year = parseInt(yearInput.val(), 10),
-						month = parseInt(monthInput.val(), 10),
-						day = parseInt(dayInput.val(), 10),
-						hours = parseInt(hoursInput.val(), 10),
-						minutes = parseInt(minutesInput.val(), 10),
-						seconds = parseInt(secondsInput.val(), 10);
+					var year = parseInt(yearInput.val(), 10) || 0,
+						month = parseInt(monthInput.val(), 10) || 0,
+						day = parseInt(dayInput.val(), 10) || 0,
+						hours = parseInt(hoursInput.val(), 10) || 0,
+						minutes = parseInt(minutesInput.val(), 10) || 0,
+						seconds = parseInt(secondsInput.val(), 10) || 0;
 
 					var date = new Date(year, month - 1, day, hours, minutes, seconds);
 
