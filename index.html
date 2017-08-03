@@ -84,7 +84,20 @@
 				var dateFromObjectId = function (objectId) {
 					return new Date(parseInt(objectId.substring(0, 8), 16) * 1000);
 				};
-
+				var formatDate = function (date) {
+					var year = date.getFullYear(),
+					month = ('0' + (date.getMonth() + 1)).slice(-2),
+					day = ('0' + date.getDate()).slice(-2),
+					hr = ('0' + date.getHours()).slice(-2),
+					mn = ('0' + date.getMinutes()).slice(-2),
+					sc = ('0' + date.getSeconds()).slice(-2);
+					var dt = [year, month, day].join('-');
+					if (date.getHours() || date.getMinutes() || date.getSeconds()){
+						dt = dt + ' ';
+						dt = dt + ([hr, mn, sc].join(':'));
+					}
+					return dt;
+				}
 				var yearInput = $('#year'),
 					monthInput = $('#month'),
 					dayInput = $('#date'),
@@ -94,7 +107,9 @@
 					objectIdInput = $('#objectId'),
 					objectIdForPasting = $('#objectIdForPasting'),
 					timestamp = $('#timestamp'),
-					timezoneOffset = $('#timezoneOffset');
+					timezoneOffset = $('#timezoneOffset'),
+					timeInExample = $('#timeInExample'),
+					objectIdInExample = $('#objectIdInExample');
 
 				var timezoneOffsetValue = - new Date().getTimezoneOffset() / 60;
 				if (timezoneOffsetValue < 0) {
@@ -126,8 +141,10 @@
 
 					objectIdInput.val(objectId);
 					objectIdForPasting.val('ObjectId("' + objectId + '")');
-					
+					objectIdInExample.text(objectId);
+
 					timestamp.val(date.toISOString());
+					timeInExample.text(formatDate(date));
 				};
 
 				var updatedObjectId = function () {
@@ -151,6 +168,8 @@
 					secondsInput.val(date.getSeconds());
 
 					timestamp.val(date.toISOString());
+					timeInExample.text(formatDate(date));
+					objectIdInExample.text(objectId);
 				};
 
 				objectIdInput.keyup(updatedObjectId).change(updatedObjectId);
@@ -224,14 +243,14 @@
 				</table>
 			</div>
 		</div>
-    
+
 		<h3>Why generate an ObjectId from a timestamp?</h3>
 
 		<p>To query documents by creation date.</p>
-		
-		<p>e.g. to find all comments created after 2013-11-01:</p>
 
-		<pre>db.comments.find({_id: {$gt: ObjectId("5272e0f00000000000000000")}})</pre>
+		<p>e.g. to find all comments created after <span id="timeInExample"></span>:</p>
+
+		<pre>db.comments.find({_id: {$gt: ObjectId("<span id="objectIdInExample"></span>")}})</pre>
 
 		<h3>Javascript functions</h3>
 		<pre>
