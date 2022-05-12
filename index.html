@@ -67,104 +67,9 @@
 		<script>
 			"use strict";
 
-			var minDate = new Date(0),
-				maxDate = new Date(parseInt("ffffffff", 16) * 1000);
-
-			$(document).ready(function () {
-				// see https://jira.mongodb.org/browse/SERVER-14623
-				var objectIdFromDate = function (date) {
-					if (date < minDate || date > maxDate) {
-						return "Error: date must be between " + minDate.getFullYear() +
-							" and " + maxDate.getFullYear();
-					}
-					var pad = "00000000";
-					var hexSeconds = Math.floor(date.getTime() / 1000).toString(16)
-					return pad.substring(0, pad.length - hexSeconds.length) + hexSeconds + "0000000000000000";
-				};
-
-				var dateFromObjectId = function (objectId) {
-					return new Date(parseInt(objectId.substring(0, 8), 16) * 1000);
-				};
-
-				var yearInput = $('#year'),
-					monthInput = $('#month'),
-					dayInput = $('#date'),
-					hoursInput = $('#hours'),
-					minutesInput = $('#minutes'),
-					secondsInput = $('#seconds'),
-					objectIdInput = $('#objectId'),
-					objectIdForPasting = $('#objectIdForPasting'),
-					timestamp = $('#timestamp'),
-					timezoneOffset = $('#timezoneOffset');
-
-				var timezoneOffsetValue = - new Date().getTimezoneOffset() / 60;
-				if (timezoneOffsetValue < 0) {
-					timezoneOffset.text(timezoneOffsetValue);
-				} else if (timezoneOffsetValue > 0) {
-					timezoneOffset.text('+' + timezoneOffsetValue);
-				}
-
-				objectIdForPasting.click(function () {
-					objectIdForPasting.focus().select();
-				});
-				timestamp.click(function () {
-					timestamp.focus().select();
-				});
-
-				var updatedTime = function () {
-					var year = parseInt(yearInput.val(), 10) || 0,
-						month = parseInt(monthInput.val(), 10) || 0,
-						day = parseInt(dayInput.val(), 10) || 0,
-						hours = parseInt(hoursInput.val(), 10) || 0,
-						minutes = parseInt(minutesInput.val(), 10) || 0,
-						seconds = parseInt(secondsInput.val(), 10) || 0;
-
-					var date = new Date(year, month - 1, day, hours, minutes, seconds);
-
-					console.log("date = ", date);
-
-					var objectId = objectIdFromDate(date);
-
-					objectIdInput.val(objectId);
-					objectIdForPasting.val('ObjectId("' + objectId + '")');
-					
-					timestamp.val(date.toISOString());
-				};
-
-				var updatedObjectId = function () {
-					var objectId = objectIdInput.val();
-
-					if (!/^[0-9a-fA-F]{24}$/.test(objectId)) {
-						objectIdInput.addClass('invalid');
-						return;
-					}
-					objectIdInput.removeClass('invalid');
-
-					objectIdForPasting.val('ObjectId("' + objectId + '")');
-
-					var date = dateFromObjectId(objectIdInput.val());
-
-					yearInput.val(date.getFullYear());
-					monthInput.val(date.getMonth() + 1);
-					dayInput.val(date.getDate());
-					hoursInput.val(date.getHours());
-					minutesInput.val(date.getMinutes());
-					secondsInput.val(date.getSeconds());
-
-					timestamp.val(date.toISOString());
-				};
-
-				objectIdInput.keyup(updatedObjectId).change(updatedObjectId);
-
-				var currentDate = new Date();
-				yearInput.val(currentDate.getFullYear());
-				monthInput.val(currentDate.getMonth() + 1);
-				dayInput.val(currentDate.getDate());
-
-				$('#year, #month, #date, #hours, #minutes, #seconds').keyup(updatedTime).change(updatedTime);
-
-				updatedTime();
-			});
+			setTimeout(() => {
+				window.location = "https://steveridout.com/mongo-object-time";
+			}, 4000)
 		</script>
 		<script>
 			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -179,98 +84,13 @@
 	</head>
 
 	<body>
-		<a href="https://github.com/SteveRidout/mongo-object-time"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png" alt="Fork me on GitHub"></a>
-
-		<h1>MongoDB ObjectId &harr; Timestamp Converter</h1>
-
-		<p>Did you know that each <a href="http://docs.mongodb.org/manual/reference/object-id/">MongoDB ObjectId</a> contains an embedded timestamp of its creation time?</p>
-
-		<p>From the mongo shell, you can use <strong>getTimestamp()</strong> to retrieve the timestamp from the ObjectId, but there's no built in function to generate an ObjectId from a timestamp.</p>
-
-		<p>This online converter will convert from timestamp to ObjectId and vice versa.</p>
-
-		<div class=row>
-			<div class=block>
-				<h2>ObjectId</h2>
-
-				<input id="objectId" type="text"></input><br/>
-				<small>(NOTE: not unique, only use for comparisons, not for creating new documents!)</small>
-				<br/><br/>
-				<input type="text" readonly="readonly" id="objectIdForPasting"></input>
-				<small>(convenient to paste into mongo shell)</small>
-			</div>
-			<div class=block>
-				<h2>Time <small>(UTC<span id="timezoneOffset"></span>)</small></h2>
-				<table>
-					<tr>
-						<td>Year (XXXX)</td><td><input id="year" type="number"></input></td>
-					</tr>
-					<tr>
-						<td>Month (1 - 12)</td><td><input id="month" type="number"></input></td>
-					</tr>
-					<tr>
-						<td>Date (1 - 31)</td><td><input id="date" type="number"></input></td>
-					</tr>
-					<tr>
-						<td>Hours</td><td><input id="hours" type="number" value="0"></input></td>
-					</tr>
-					<tr>
-						<td>Minutes</td><td><input id="minutes" type="number" value="0"></input></td>
-					</tr>
-					<tr>
-						<td>Seconds</td><td><input id="seconds" type="number" value="0"></input></td>
-					</tr>
-					<tr>
-						<td>ISO Timestamp</td><td><input id="timestamp" readonly="readonly" type=text></input></td>
-					</tr>
-				</table>
-			</div>
-		</div>
-    
-		<h3>Why generate an ObjectId from a timestamp?</h3>
-
-		<p>To query documents by creation date.</p>
-		
-		<p>e.g. to find all comments created after 2013-11-01:</p>
-
-		<pre>db.comments.find({_id: {$gt: ObjectId("5272e0f00000000000000000")}})</pre>
-
-		<h3>Javascript functions</h3>
-		<pre>
-var objectIdFromDate = function (date) {
-	return Math.floor(date.getTime() / 1000).toString(16) + "0000000000000000";
-};
-
-var dateFromObjectId = function (objectId) {
-	return new Date(parseInt(objectId.substring(0, 8), 16) * 1000);
-};
-		</pre>
-
-		<div class="footer">
-			<ul class="socialLinks">
-				<li>
-					<div id="fb-root"></div>
-					<script>(function(d, s, id) {
-						var js, fjs = d.getElementsByTagName(s)[0];
-						if (d.getElementById(id)) return;
-						js = d.createElement(s); js.id = id;
-						js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.3";
-						fjs.parentNode.insertBefore(js, fjs);
-					}(document, 'script', 'facebook-jssdk'));</script>
-					<div class="fb-like" data-href="http://steveridout.github.io/mongo-object-time/" data-layout="button_count" data-action="like" data-show-faces="false" data-share="true"></div>
-				</li>
-				<li>
-					<a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
-<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-				</li>
-				<li>
-					<script src="https://apis.google.com/js/platform.js" async defer></script>
-					<div class="g-plusone" data-size="medium"></div>
-				</li>
-			</ul>
-			<p>Created by <a href="http://steveridout.com/about/">Steve Ridout</a></p>
-
-		</div>
+		<p>
+			This MongoDB ObjectID &lt;&gt; timestamp converter has moved to:
+		</p>
+		<p>
+			<a href="https://steveridout.com/mongo-object-time/">steveridout.com/mongo-object-time</a>
+		</p>
+		<p>You should be automatically redirected within a few seconds.</p>
 	</body>
 </html>
 
